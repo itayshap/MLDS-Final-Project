@@ -2,4 +2,6 @@
 /MLDS - Permuted Dogs versus Cats.docx
 /test
 /train
-/__pycache__
+
+__pycache__/
+*.pyc
