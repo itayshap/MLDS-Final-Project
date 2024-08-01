@@ -33,8 +33,9 @@ class PermuteImage:
             permuted_img = self.permute_image(img, num_tiles)
         return permuted_img
     
+
     @ staticmethod
-    def permute_all(self, img, num_tiles=4):
+    def permute_all(img, num_tiles=4):
         permuted_imgs = []
         tiles_per_row = int(np.sqrt(num_tiles))
         x = int(img.shape[0] // tiles_per_row * tiles_per_row)
