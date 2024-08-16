@@ -5,13 +5,13 @@ from transforms.PermuteImage import PermuteImage
 class Transform_Builder:
     
     @staticmethod
-    def build(size : int = 224, with_premute : bool = False, num_tiles: int = 4):
+    def build(size : int = 224, with_premute : bool = False, num_tiles: int = 4, permutations_set = None):
         model_transform = transforms.Compose([
         transforms.Resize((size, size)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         if with_premute:
-            model_transform.transforms.insert(1, PermuteImage(num_tiles=num_tiles))
+            model_transform.transforms.insert(3, PermuteImage(num_tiles=num_tiles, permutations_set=permutations_set))
         
         def transform(examples: dict):
             lst = []
