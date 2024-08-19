@@ -1,6 +1,7 @@
 from transformers import ViTImageProcessor, ViTForImageClassification
 from torch.utils.data import DataLoader
 import torch
+from tqdm import tqdm
 
 class VitModule():
     def __init__(self, model_name_or_path: str, device: torch.device):
@@ -27,3 +28,52 @@ class VitModule():
                 running_corrects += batch_matching.sum()
         self.test_acc = round(running_corrects.item() / test_dataset_size, 4)
         print('Test Acc: {:4f}'.format(self.test_acc))
+
+    def fine_tune(self, train_loader: DataLoader, val_loader: DataLoader, epochs: int, learning_rate: float):
+        criterion = torch.nn.CrossEntropyLoss()
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+
+        for epoch in range(epochs):
+            self.model.train()
+            running_loss = 0.0
+            running_corrects = 0
+
+            for batch in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False):
+                images, labels = batch['image'], batch['labels']
+                images = images.to(self.device)
+                labels = labels.to(self.device, dtype=torch.int64)
+
+                optimizer.zero_grad()
+                outputs = self.model(images).logits
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                running_loss += loss.item() * images.size(0)
+                _, preds = torch.max(outputs, 1)
+                running_corrects += torch.sum(preds == labels.data)
+
+            epoch_loss = running_loss / len(train_loader.dataset)
+            epoch_acc = running_corrects.double() / len(train_loader.dataset)
+
+            print(f'Epoch {epoch+1}/{epochs} - Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+
+            # Validation step after each epoch
+            self.__validate(val_loader)
+
+    def __validate(self, val_loader: DataLoader):
+        self.model.eval()
+        running_corrects = 0
+
+        with torch.no_grad():
+            for batch in val_loader:
+                images, labels = batch['image'], batch['labels']
+                images = images.to(self.device)
+                labels = labels.to(self.device, dtype=torch.int64)
+
+                outputs = self.model(images).logits
+                _, preds = torch.max(outputs, 1)
+                running_corrects += torch.sum(preds == labels.data)
+
+        val_acc = running_corrects.double() / len(val_loader.dataset)
+        print(f'Validation Acc: {val_acc:.4f}')
