@@ -17,7 +17,7 @@ class BaseModule(Module):
         self.test_acc = 0
         self.Perdicated_matches = None
 
-    def start_train(self, criterion, optimizer: torch.optim.Optimizer, dataloaders: Dict[str, DataLoader], num_epochs=5, seed=42):
+    def start_train(self, criterion, optimizer: torch.optim.Optimizer, dataloaders: Dict[str, DataLoader], num_epochs=5, seed=42, verbose=True):
         dataset_sizes = {k: v.batch_size *
                          len(v) for k, v in dataloaders.items()}
         self.train_history = defaultdict(list)
@@ -61,9 +61,9 @@ class BaseModule(Module):
                         optimizer.step()
                 epoch_loss = running_loss / dataset_sizes[phase]
                 epoch_acc = running_corrects.item() / dataset_sizes[phase]
-
-                print('{} Loss: {:.4f}  |  Acc: {:.4f}'.format(
-                    phase, epoch_loss, epoch_acc))
+                if verbose:
+                    print('{} Loss: {:.4f}  |  Acc: {:.4f}'.format(
+                        phase, epoch_loss, epoch_acc))
                 
                 if phase == 'val' and epoch_acc > best_acc:
                     best_acc = epoch_acc
@@ -77,8 +77,8 @@ class BaseModule(Module):
         print('Training complete in {:.0f}m {:.0f}s'.format(
             time_elapsed // 60, time_elapsed % 60))
         print('Best val Acc: {:4f}'.format(best_acc))
-
-        return self.load_state_dict(best_model_wts)
+        self.load_state_dict(best_model_wts)
+         
     
     def predict_data(self, loader: DataLoader):
         self.Perdicated_matches = torch.empty(0, dtype=torch.bool).to(self.device)
