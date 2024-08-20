@@ -99,5 +99,5 @@ class BaseModule(Module):
                 self.Perdicated_matches = torch.concatenate([self.Perdicated_matches, batch_matching])
                 running_corrects += batch_matching.sum()
         self.test_acc = round(running_corrects.item() / test_dataset_size, 4)
-        print('Test Acc: {:4f}'.format(self.test_acc))
+        # print('Test Acc: {:4f}'.format(self.test_acc))
         
