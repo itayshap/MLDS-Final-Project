@@ -27,8 +27,9 @@ class BaseModule(Module):
         best_model_wts = copy.deepcopy(self.state_dict())
 
         for epoch in range(num_epochs):
-            print('Epoch {}/{}'.format(epoch+1, num_epochs))
-            print('-' * 10)
+            if verbose:
+                print('Epoch {}/{}'.format(epoch+1, num_epochs))
+                print('-' * 10)
 
             # Each epoch has a training and validation phase
             for phase in ['train', 'val']:
