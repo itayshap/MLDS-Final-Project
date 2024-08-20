@@ -12,12 +12,17 @@ def denormalize(tensor: torch.tensor, mean: list = [0.485, 0.456, 0.406], std: l
 
 
 ### draw functions:
-def draw_bar_plot(data: pd.DataFrame, x: str,y: str, title: str, figsize=(6,3)):
+def draw_bar_plot(data: pd.DataFrame, x: str,y: str, title: str, figsize=(6,3), ylim=None, hue=None):
     fig, ax = plt.subplots(figsize=figsize)
-    g = sns.barplot(data = data, y=y, x=x, palette='pastel',  legend=False, ax=ax)
+    g = sns.barplot(data = data, y=y, x=x, palette='pastel', hue=hue , ax=ax)
     for i in g.containers:
         g.bar_label(i, padding=-20, fmt='%.3f')
     plt.title(title)
+    g.set_ylim(ylim)
+    g.set_xlabel(g.get_xlabel(), fontdict={'weight': 'bold'})
+    g.set_ylabel(g.get_ylabel(), fontdict={'weight': 'bold'})
+    if hue:
+        sns.move_legend(g, "lower right")
     plt.tight_layout()
     plt.show();
 
@@ -40,6 +45,17 @@ def draw_images(images: torch.Tensor, titles: list, mean: list = [0.485, 0.456, 
     if to_delete:
         fig.delaxes(axes[-1])
     plt.tight_layout()
+    plt.show();
+
+def draw_rank_test_results(results, permutation_dict, model_name):
+    df= pd.DataFrame(results)
+    df['Permutation'] = permutation_dict.keys()
+    df['Permutations Rank'] = df.Score.rank() -1
+    sns.lineplot(data= df, y='Accuracy', x='Permutations Rank')
+    for i, row in df.iterrows():
+        plt.scatter( y=row.Accuracy, x=row['Permutations Rank'], label=row.Permutation)
+    plt.legend()
+    plt.title(f'{model_name} - Accuracy Vs Permutation Rank')
     plt.show();
 
 
