@@ -19,7 +19,7 @@ from transforms.Transform_Builder import Transform_Builder
 class Model_Builder():
 
     @staticmethod
-    def build(modelType: ModelType, device: str, trainParams: TrainParams = None, dataloaders: dict = None, path :ModelPath = ModelPath.BASELINE_CUSTOM):
+    def build(modelType: ModelType, device: str, trainParams: TrainParams = None, dataloaders: dict = None, path :ModelPath = ModelPath.BASELINE_CUSTOM.value):
         if modelType==ModelType.PRETRAINED:
             model = HeadlessPretrainedModule(pretrained_model = models.resnet50(pretrained=True), device=device)
             model = model.to(device)
@@ -33,6 +33,10 @@ class Model_Builder():
             model = VitModule('nateraw/vit-base-cats-vs-dogs', device)
         return model
 
+    def build_finetuned(model, trainParams: TrainParams = None, dataloaders: dict = None, path :ModelPath = ModelPath.BASELINE_CUSTOM.value):
+        model = Model_Builder.load_or_train_model(model, path, dataloaders, trainParams)
+        return model
+           
     def load_or_train_model(model: BaseModule, path: str, dataloaders: dict, trainParams: TrainParams):
         if isfile(path):
             model.load_state_dict(torch.load(path))
