@@ -29,9 +29,9 @@ class VitModule():
         self.test_acc = round(running_corrects.item() / test_dataset_size, 4)
         # print('Test Acc: {:4f}'.format(self.test_acc))
 
-    def fine_tune(self, train_loader: DataLoader, val_loader: DataLoader, epochs: int, learning_rate: float):
+    def fine_tune(self, train_loader: DataLoader, val_loader: DataLoader, epochs: int, learning_rate: float, verbose=False):
         criterion = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate, betas=(0.9,0.999), eps=1e-08)
 
         for epoch in range(epochs):
             self.model.train()
@@ -56,12 +56,12 @@ class VitModule():
             epoch_loss = running_loss / len(train_loader.dataset)
             epoch_acc = running_corrects.double() / len(train_loader.dataset)
 
-            print(f'Epoch {epoch+1}/{epochs} - Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+            if verbose:
+                print(f'Epoch {epoch+1}/{epochs} - Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
-            # Validation step after each epoch
-            self.__validate(val_loader)
+            self.__validate(val_loader, verbose)
 
-    def __validate(self, val_loader: DataLoader):
+    def __validate(self, val_loader: DataLoader, verbose=False):
         self.model.eval()
         running_corrects = 0
 
@@ -76,4 +76,5 @@ class VitModule():
                 running_corrects += torch.sum(preds == labels.data)
 
         val_acc = running_corrects.double() / len(val_loader.dataset)
-        print(f'Validation Acc: {val_acc:.4f}')
+        if verbose:
+            print(f'Validation Acc: {val_acc:.4f}')
