@@ -5,6 +5,7 @@ import torch
 from torch.nn import Module
 from torch.utils.data import DataLoader
 import copy
+from tqdm import tqdm
 
 class BaseModule(Module):
     def __init__(self, device: torch.device) -> None:
@@ -44,7 +45,7 @@ class BaseModule(Module):
                 running_corrects = 0  # number of correct predictions
 
                 # Iterate over data.
-                for batch in dataloaders[phase]:
+                for batch in tqdm(dataloaders[phase], desc=f"Epoch {epoch+1}/{num_epochs}", leave=False):
 
                     images, labels = batch['image'], batch['labels']
                     images = images.to(self.device)

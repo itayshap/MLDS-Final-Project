@@ -1,3 +1,3 @@
 from collections import namedtuple
 
-TrainParams = namedtuple('trainParams',['lr', 'num_epochs', 'optimizer', 'momentum', 'verbose'])
+TrainParams = namedtuple('trainParams',['num_epochs', 'optimizer', 'optimizer_params', 'verbose'])
