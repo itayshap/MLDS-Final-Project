@@ -12,17 +12,19 @@ def denormalize(tensor: torch.tensor, mean: list = [0.485, 0.456, 0.406], std: l
 
 
 ### draw functions:
-def draw_bar_plot(data: pd.DataFrame, x: str,y: str, title: str, figsize=(6,3), ylim=None, hue=None):
+def draw_bar_plot(data: pd.DataFrame, x: str,y: str, title: str, figsize=(6,3), ylim=None, hue=None, legend_loc= "lower right", value_verbose = True, palette='pastel', rotation=0):
     fig, ax = plt.subplots(figsize=figsize)
-    g = sns.barplot(data = data, y=y, x=x, palette='pastel', hue=hue , ax=ax)
-    for i in g.containers:
-        g.bar_label(i, padding=-20, fmt='%.3f')
-    plt.title(title)
+    g = sns.barplot(data = data, y=y, x=x, palette=palette, hue=hue , ax=ax)
+    if value_verbose:
+        for i in g.containers:
+            g.bar_label(i, padding=-20, fmt='%.3f')
+    g.set_title(title,  fontdict={'weight': 'bold'})
     g.set_ylim(ylim)
     g.set_xlabel(g.get_xlabel(), fontdict={'weight': 'bold'})
     g.set_ylabel(g.get_ylabel(), fontdict={'weight': 'bold'})
     if hue:
-        sns.move_legend(g, "lower right")
+        sns.move_legend(g, legend_loc)
+    plt.xticks(rotation=rotation)
     plt.tight_layout()
     plt.show();
 
