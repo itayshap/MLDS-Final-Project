@@ -4,7 +4,7 @@ from Enums.ModelType import ModelType
 from Enums.ModelPath import ModelPath
 from modules.HeadlessPretrainedModule import HeadlessPretrainedModule
 from torchvision import models
-from modules.CustomModule import CustomModule2
+from modules.CustomModule import CustomBetterModule, CustomModule
 from modules.VitModule import VitModule
 from modules.BaseModule import BaseModule
 from os.path import isfile
@@ -22,10 +22,12 @@ class Model_Builder():
     def build(modelType: ModelType, device: str, trainParams: TrainParams = None, dataloaders: dict = None, path :ModelPath = None):
         if modelType==ModelType.PRETRAINED:
             model = HeadlessPretrainedModule(pretrained_model = models.resnet50(pretrained=True), device=device)
-            model = model.to(device)
-            
+            model = model.to(device)      
         elif modelType==ModelType.CUSTOM:
-            model = CustomModule2(device=device)
+            model = CustomModule(device=device)
+            model = model.to(device)
+        elif modelType==ModelType.IMPROVED_CUSTOM:
+            model = CustomBetterModule(device=device)
             model = model.to(device)
         else:
             model = VitModule('nateraw/vit-base-cats-vs-dogs', device)
@@ -40,20 +42,22 @@ class Model_Builder():
         return model
            
     def load_or_train_model(modelType: ModelType, model: BaseModule, path: str, dataloaders: dict, trainParams: TrainParams):
-        if isfile(path):
-            if modelType == ModelType.VIT:
-                model.model.classifier.load_state_dict(torch.load(path))
-            else: 
-                model.load_state_dict(torch.load(path))
-        else:
-            model_optimizer = trainParams.optimizer(model.parameters(), **trainParams.optimizer_params)
-            criterion = nn.CrossEntropyLoss()
-            model.start_train(criterion, model_optimizer, dataloaders=dataloaders, num_epochs=trainParams.num_epochs, verbose=trainParams.verbose)
-            if modelType == ModelType.VIT:
-                torch.save(model.model.classifier.state_dict(), path)
+        try:
+            if isfile(path):
+                if modelType == ModelType.VIT:
+                    model.model.classifier.load_state_dict(torch.load(path))
+                else: 
+                    model.load_state_dict(torch.load(path))
             else:
-                torch.save(model.state_dict(), path)
-        return model
+                model_optimizer = trainParams.optimizer(model.parameters(), **trainParams.optimizer_params)
+                criterion = nn.CrossEntropyLoss()
+                model.start_train(criterion, model_optimizer, dataloaders=dataloaders, num_epochs=trainParams.num_epochs, verbose=trainParams.verbose)
+                if modelType == ModelType.VIT:
+                    torch.save(model.model.classifier.state_dict(), path)
+                else:
+                    torch.save(model.state_dict(), path)
+        finally:
+            return model
     
     @staticmethod
     def build_dataloaders(train, val, test, custom_transform):
