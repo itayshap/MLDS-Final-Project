@@ -56,35 +56,3 @@ class PermuteImage:
             permuted_img = tiled_array.reshape(channels, height, width)
             permuted_imgs.append(permuted_img)
         return torch.stack(permuted_imgs).squeeze()
-    
-    @ staticmethod
-    def permute_all(img, tiles_num=4):
-        permuted_imgs = []
-        tiles_per_row = int(np.sqrt(tiles_num))
-        x = int(img.shape[0] // tiles_per_row * tiles_per_row)
-        y = int(img.shape[1] // tiles_per_row * tiles_per_row)
-        img = img[:x, :y, :]
-        height, width, channels = img.shape
-        tile_width = int(width // tiles_per_row)
-        tile_height = int(height // tiles_per_row)
-        tiled_array = img.reshape(tiles_per_row, tile_height, tiles_per_row, tile_width, channels)
-        tiled_array = tiled_array.swapaxes(1, 2)
-        tiles = tiled_array.reshape(tiles_num, tile_height, tile_width, channels)
-        tiles_permutations = list(permutations(range(tiles_num), tiles_num))
-        tiles_permutations.pop(0)
-        for permutation in tiles_permutations:
-            premuted_tiles= tiles[permutation, :]
-            tiled_array = premuted_tiles.reshape(tiles_per_row, tiles_per_row, tile_height, tile_width, channels)
-            tiled_array = tiled_array.swapaxes(1, 2)
-            permuted_img = tiled_array.reshape(height, width, channels)
-            permuted_imgs.append(permuted_img)
-        return permuted_imgs
-    
-    @ staticmethod
-    def create_n_premutations(arr: np.array, n:int ,seed: int):
-        np.random.seed(seed)
-        permutations_set = set()
-        while len(permutations_set) < n:
-            perm = tuple(np.random.permutation(arr))
-            permutations_set.add(perm)
-        return list(permutations_set)
