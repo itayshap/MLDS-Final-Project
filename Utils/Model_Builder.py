@@ -8,9 +8,7 @@ from modules.CustomModule import CustomBetterModule, CustomModule
 from modules.VitModule import VitModule
 from modules.BaseModule import BaseModule
 from os.path import isfile
-from collections import namedtuple
 from torch import nn
-from torch.nn import Module
 from torch.utils.data import DataLoader
 from Config import TrainParams
 
@@ -35,10 +33,6 @@ class Model_Builder():
         if path != None:
             model = Model_Builder.load_or_train_model(modelType, model, path, dataloaders, trainParams)
 
-        return model
-
-    def build_finetuned(modelType: ModelType, model, trainParams: TrainParams = None, dataloaders: dict = None, path :ModelPath = ModelPath.BASELINE_CUSTOM.value):
-        model = Model_Builder.load_or_train_model(model, path, dataloaders, trainParams)
         return model
            
     def load_or_train_model(modelType: ModelType, model: BaseModule, path: str, dataloaders: dict, trainParams: TrainParams):

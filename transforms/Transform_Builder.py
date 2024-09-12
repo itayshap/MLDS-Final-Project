@@ -2,7 +2,7 @@ import torch
 from torchvision import transforms
 from transforms.PermuteImage import PermuteImage
 from modules.VitModule import ViTImageProcessor
-from torch.utils.data import Dataset
+from datasets.arrow_dataset import Dataset
 
 def convert_to_rgb(example_batch, transformer = None):
     lst = []
