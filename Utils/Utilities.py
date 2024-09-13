@@ -28,25 +28,25 @@ def draw_bar_plot(data: pd.DataFrame, x: str,y: str, title: str, figsize=(6,3), 
     plt.tight_layout()
     plt.show();
 
-def draw_images(images: torch.Tensor, titles: list, mean: list = [0.485, 0.456, 0.406], std: list = [0.229, 0.224, 0.225]):
+def draw_images(images: torch.Tensor, titles: dict, mean: list = [0.485, 0.456, 0.406], std: list = [0.229, 0.224, 0.225]):
     to_delete = False
     num_images = images.shape[0]
     if num_images % 2 == 0:
-        fig, axes = plt.subplots(2, int(num_images/2), figsize=(8,5))
+        fig, axes = plt.subplots(2, int(num_images/2), figsize=(9,5))
     elif np.sqrt(num_images) ** 2 == num_images:
         fig, axes = plt.subplots(int(np.sqrt(num_images)), int(np.sqrt(num_images)), figsize= (8,8))
     else:
-         fig, axes = plt.subplots(2, int(num_images/2+1), figsize=(8,5))
+         fig, axes = plt.subplots(2, int(num_images/2+1), figsize=(9,5))
          to_delete = True
     axes = axes.flatten()
-    for i, key in enumerate(titles):
+    for i, (key, value) in enumerate(titles.items()):
         img = torch.permute(denormalize(images[i,:],mean, std),(1,2,0))
         axes[i].imshow(img)
-        axes[i].set_title(key)
+        axes[i].set_title(f'{key} - \n {value}')
         axes[i].axis('off')
     if to_delete:
         fig.delaxes(axes[-1])
-    plt.tight_layout()
+    plt.tight_layout(pad=2)
     plt.show();
 
 def draw_rank_test_results(results, permutation_dict, model_name):
